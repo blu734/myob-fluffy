@@ -1,0 +1,48 @@
+extends layout
+
+block head
+  //- link(rel='stylesheet', href='/css/header.css')
+  link(rel='stylesheet', href='/css/index.css')
+
+block content
+  header
+    h2#title #{title}
+  section#main.main
+    //-h1.comms MYOB IT Inventory
+    //- borderbottom
+    if err
+      div.notification= "Error: " + JSON.stringify(err)
+    else
+      div#invtable
+        input(placeholder="Search Items").search
+        table.inv
+          thead
+            tr
+              th.sort(data-sort="name") Item Name
+              th.hidden
+              th.sort(data-sort="dtime") Date Added
+              th Current Count
+              th Desired
+              th Difference
+              th Difference (%)
+              th Item Value
+              th Total Value
+          tbody.list
+            each row in tabledata
+              tr.invrow(id=row.seq)
+                td.l.name= row.name
+                td.dtime.hidden= new Date(row.dateAdded).toISOString()
+                td= row.dateAdded
+                td= row.currentCount
+                td= row.desiredCount
+                td= row.difference
+                td= row.differencePercentage
+                td= row.itemValue
+                td= row.totalValue
+      
+
+block scripts
+  script(src="/js/custom/list.min.js")
+  //-script(src="/js/header.js")
+  script(src="/js/index.js")
+  

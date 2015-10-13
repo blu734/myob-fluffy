@@ -67,7 +67,7 @@ function ajaxPost(url, jsonData, onFinish, onError, lb) {
         updateLoadingBar(xmlhttp.readyState);
       console.log("Status code: " + xmlhttp.status);
       if (onError)
-        onError();
+        onError(xmlhttp.responseText);
       if (lb)
         updateLoadingBar(-1);
     } else {
@@ -131,4 +131,15 @@ function updateLoadingBar(state) {
   } else if (state == 4) {
     lb.classList.add('reqfin')
   }
+}
+// Delete an element
+Element.prototype.remove = function() {
+    this.parentElement.removeChild(this);
+}
+NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+    for(var i = this.length - 1; i >= 0; i--) {
+        if(this[i] && this[i].parentElement) {
+            this[i].parentElement.removeChild(this[i]);
+        }
+    }
 }

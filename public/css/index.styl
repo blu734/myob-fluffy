@@ -14,14 +14,57 @@ table.inv
     border-bottom:1px solid #aaaaaa
   th, td
     padding:5px 10px
-  td.sort
+  th.sort
     cursor:pointer
-  tbody
+  tbody.list
     tr
       border-top:1px solid #eee
       cursor:pointer
     tr:hover
       background:#eeeeee
     td:hover
-      background:#58f
+      //background:#58f
       color:white
+    tr.graph
+      td
+        padding:0
+      td:hover
+        background:inherit
+        color:black
+      div.graph
+        max-height: 500px
+        transition: max-height 0.3s ease-out
+        overflow:hidden
+    tr.edit
+      color:#aaa
+      cursor:text
+      [contenteditable=true]
+        color:#000
+      td:hover
+        background:transparent
+    td.img.del
+      background-color:#f88
+      position:absolute
+      margin-left:-10px
+      opacity:0
+      transition:all 0.2s ease-out
+    tr:hover td.img.del, td.img.del:hover
+      margin-left:0
+      opacity:1
+    tr.graph.hide
+      div.graph
+        max-height: 0
+  tbody.add
+    img.icon
+      cursor:pointer
+#invtable
+  padding-bottom:100px
+.icon
+  width:25px
+  
+[contenteditable=true]:empty:before
+  color:#aaa
+  content: attr(placeholder)
+  display: block // For Firefox
+  cursor:text
+

@@ -1,13 +1,12 @@
 {
   "name": "myob-it-2015",
   "version": "0.0.1",
-  "description": "Reporting app to give visibility in to the success of the CME system",
+  "description": "Inventory Management system for MYOB",
   "main": "app.js",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/start"
   },
-
   "dependencies": {
     "autoprefixer-stylus": "^0.7.1",
     "body-parser": "~1.13.2",
@@ -15,6 +14,7 @@
     "debug": "~2.2.0",
     "express": "~4.13.1",
     "jade": "~1.11.0",
+    "mongodb": "^2.0.45",
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0",
     "stylus": "0.42.3"

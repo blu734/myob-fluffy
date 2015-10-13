@@ -1,11 +1,26 @@
 extends layout
 
 block head
-  //- link(rel='stylesheet', href='/css/header.css')
+  link(rel='stylesheet', href='/css/header.css')
   link(rel='stylesheet', href='/css/index.css')
 
 block content
   header
+    div.logo
+      section.container
+        div(id="cube")
+          figure.front
+            img(src="/img/myoblogo.png")
+          figure.back
+            img(src="/img/myoblogo.png")
+          figure.right
+            img(src="/img/myoblogo.png")
+          figure.left
+            img(src="/img/myoblogo.png")
+          figure.top
+            img(src="/img/myoblogo.png")
+          figure.bottom
+            img(src="/img/myoblogo.png")
     h2#title #{title}
   section#main.main
     //-h1.comms MYOB IT Inventory
@@ -13,6 +28,8 @@ block content
     if err
       div.notification= "Error: " + JSON.stringify(err)
     else
+      div#distributiongraph
+        div#piechartdist
       div#invtable
         input(placeholder="Search Items").search
         table.inv
@@ -25,24 +42,51 @@ block content
               th Desired
               th Difference
               th Difference (%)
-              th Item Value
-              th Total Value
+              th Item Value (NZD)
+              th Total Value (NZD)
           tbody.list
             each row in tabledata
-              tr.invrow(id=row.seq)
-                td.l.name= row.name
-                td.dtime.hidden= new Date(row.dateAdded).toISOString()
-                td= row.dateAdded
+              tr.invrow.info(id=row._id)
+                td.l.name= row.itemName
+                td.dtime.hidden= new Date(row.date).toISOString()
+                td= new Date(row.date).toISOString()
                 td= row.currentCount
                 td= row.desiredCount
-                td= row.difference
-                td= row.differencePercentage
-                td= row.itemValue
-                td= row.totalValue
+                - var currentCount = parseInt(row.currentCount), desiredCount = parseInt(row.desiredCount);
+                td= currentCount - desiredCount
+                td= currentCount / desiredCount *100-100
+                td= "$"+row.itemValue
+                td= "$"+(parseInt(row.itemValue))*currentCount
+                td.img
+                  img.icon.edit(src="/img/pencil-black.png")
+                  img.icon.update.hidden(src="/img/pencil-white.png")
+                td.img.del
+                  img.icon.delete(src="/img/trash.png")
+              tr.invrow.graph.hide(class="graph-"+row._id)
+                td.hidden.l.name= row.name
+                td.dtime.hidden= new Date(row.date).toISOString()
+                td(colspan="10")
+                  div.graph#graph
+            tbody.add
+              tr
+                td.l.blank(contenteditable="false",placeholder="Item Name")
+                td.blank(contenteditable="false",placeholder="Date Added")
+                td.blank(contenteditable="false",placeholder="Count")
+                td.blank(contenteditable="false",placeholder="Desired Num")
+                td.blank
+                td.blank
+                td.blank(contenteditable="false",placeholder="Item Value")
+                td.blank
+                td.img
+                  img.icon.add(src="/img/add-black.png")
+                  img.icon.save.hidden(src="/img/add-white.png")
       
 
 block scripts
   script(src="/js/custom/list.min.js")
-  //-script(src="/js/header.js")
+  //-script(src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js")
+  script(src="/js/custom/jquery-1.8.2.min.js")
+  script(src="/js/custom/highcharts/highcharts.js")
+  script(src="/js/custom/highcharts/exporting.js")
+  script(src="/js/header.js")
   script(src="/js/index.js")
-  

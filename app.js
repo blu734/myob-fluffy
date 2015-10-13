@@ -6,11 +6,14 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var stylus = require('stylus');
 var autoprefixer = require('autoprefixer-stylus');
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+var http = require('http').Server(app);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,7 +25,6 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(stylus.middleware({
   src: path.join(__dirname, 'public'),
   compile: function(str, path) {
@@ -33,6 +35,14 @@ app.use(stylus.middleware({
     ;
   }
 }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+var url = 'mongodb://localhost:27017/myob';
+MongoClient.connect(url, function(err, db) {
+  assert.equal(null, err);
+  console.log("Connected correctly to server.");
+  db.close();
+});
 
 app.use('/', routes);
 app.use('/users', users);
@@ -69,4 +79,4 @@ app.use(function(err, req, res, next) {
 });
 
 
-module.exports = app;
+module.exports = http;

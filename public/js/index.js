@@ -29,9 +29,12 @@ function toggleEdit() {
         var isEdit = edits[j].parentNode.parentNode.classList.add('edit');
         var items = edits[j].parentNode.parentNode.children;
 
-        var itemids = [0,2,3,7];
+        var itemids = [0,3,4,7];
         for (var i = 0; i < itemids.length; ++i) {
-          items[itemids[i]].contentEditable=true;
+          var item = items[itemids[i]];
+          item.contentEditable=true;
+          if (item.classList.contains('number'))
+            item.innerText = item.innerText.replace(/\D/g,'');
         }
 
         edits[j].classList.add('hidden');
@@ -41,9 +44,10 @@ function toggleEdit() {
             var edits = qgeta('img.edit');
             var updates = qgeta('img.update');
             // TODO: Add Ajax in here
+            saveItemChanges(edits[k].parentNode.parentNode);
 
             var isEdit = edits[k].parentNode.parentNode.classList.remove('edit');
-            var itemids = [0,2,3,7];
+            var itemids = [0,3,4,7];
             for (var i = 0; i < itemids.length; ++i) {
               items[itemids[i]].contentEditable=false;
             }
@@ -59,6 +63,22 @@ function toggleEdit() {
       }
     }(i)
   }
+}
+function saveItemChanges(row){
+  var items = row.children;
+  var data = {
+    id: row.id
+  , itemName: items[0].innerText
+  , currentCount: items[3].innerText
+  , desiredCount: items[4].innerText
+  , itemValue: items[7].innerText
+  };
+  console.log(row, data);
+  ajaxPost('/updateinventory',data,function(responseText){
+    console.log(responseText);
+  },function(responseText){
+    console.log(responseText);
+  },true)
 }
 function addItem() {
   var add = qget('tbody.add img.add');
@@ -167,7 +187,7 @@ function insertRow(data){
   newCell = newRow.insertCell(8);
   newCell.innerText = "$" + (itemValue*currentCount);
   newCell = newRow.insertCell(9);
-  newCell.innerHTML = "<img class=\"icon edit\" src=\"/img/pencil-black.png\"><img class=\"icon update hidden\" src=\"/img/pencil-white.png\">";
+  newCell.innerHTML = "<img class=\"icon edit\" src=\"/img/pencil-black.png\"><img class=\"icon update hidden\" src=\"/img/save.png\">";
   newCell = newRow.insertCell(10);
   newCell.className = "img del";
   newCell.innerHTML = "<img class=\"icon delete\" src=\"/img/trash.png\">";
@@ -220,117 +240,148 @@ function deleteItem() {
     }(i)
   }
 }
+function numbersOnly(){
+  var numbers = qgeta('.number');
+  for (var i = 0; i < numbers.length; ++i) {
+    numbers[i].onkeypress = function(event) {
+      return event.charCode >= 48 && event.charCode <= 57;
+    }
+  }
+}
+// s = s.replace(/\D/g,'');
 setupListTable();
 toggleGraphs();
 toggleEdit();
 addItem();
 deleteItem();
+numbersOnly();
 
 
-$(function () {
-    $('div.graph').highcharts({
+function drawGraph() {
+  //var tabledata = '';
+  var seriesData = [];
+  var desiredData = [];
+  for (var i = 0; i < tabledata.length; ++i) {
+    var inventory = {name: tabledata[i].itemName, data: []}
+    var desired = {name: 'Desired', data: []}
+    //if (tabledata[i].inv.length>0) {
+    //  inventory.data.push([Date.parse(tabledata[i].inv[0].date), 0]);
+    //  desired.data.push([Date.parse(tabledata[i].inv[0].date), 0]);
+    //}
+    for (var j = 0; j < tabledata[i].inv.length; ++j) {
+      inventory.data.push([
+        Date.parse(tabledata[i].inv[j].date), parseInt(tabledata[i].inv[j].currentCount)]);
+      desired.data.push([
+        Date.parse(tabledata[i].inv[j].date), parseInt(tabledata[i].inv[j].desiredCount)]);
+      //console.log(Date.parse(tabledata[i].inv[j].date));
+    }
+    var currentCount = parseInt(tabledata[i].inv[tabledata[i].inv.length-1].currentCount);
+    var desiredCount = parseInt(tabledata[i].inv[tabledata[i].inv.length-1].desiredCount);
+    inventory.data.push([(new Date()).getTime(), currentCount]);
+    desired.data.push([(new Date()).getTime(), desiredCount]);
+    seriesData.push(inventory);
+    desiredData.push(desired);
+  }
+  $('div.graph').each(function(){
+    var graph = this;
+    var idx = graph.getAttribute('idx');
+    var chart = new Highcharts.Chart({
+      chart: {
+        renderTo: this
+      },
+      title: {
+        text: 'Inventory levels',
+        x: -20 //center
+      },
+      xAxis: {
+        type: 'datetime',
         title: {
-            text: 'Monthly Average Temperature',
-            x: -20 //center
-        },
-        xAxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        },
-        yAxis: {
-            title: {
-                text: 'Temperature (°C)'
-            },
-            plotLines: [{
-                value: 0,
-                width: 1,
-                color: '#808080'
-            }]
-        },
-        tooltip: {
-            valueSuffix: '°C'
-        },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
-        },
-        series: [{
-            name: 'Tokyo',
-            data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6],
-            step:true
-        }, {
-            name: 'New York',
-            data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5],
-            step:true
-        }, {
-            name: 'Berlin',
-            data: [-0.9, 0.6, 3.5, 8.4, 13.5, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9, 1.0],
-            step:true
-        }, {
-            name: 'London',
-            data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8],
-            step:true
-        }],
-        credits: {
-            enabled: false
-        },
-    });
-
-    $('#piechartdist').highcharts({
-        chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false,
-            type: 'pie'
-        },
+          text: 'Date'
+        }
+      },
+      yAxis: {
         title: {
-            text: 'Inventory cost distribution'
+          text: 'Count'
         },
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-        },
-        plotOptions: {
-            pie: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    style: {
-                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                    }
-                }
-            }
-        },
-        series: [{
-            name: "Items",
-            colorByPoint: true,
-            data: [{
-                name: "Item 1",
-                y: 56.33
-            }, {
-                name: "Item 2",
-                y: 24.03,
-                sliced: true,
-                selected: true
-            }, {
-                name: "Item 3",
-                y: 10.38
-            }, {
-                name: "Item 4",
-                y: 4.77
-            }, {
-                name: "Item 5",
-                y: 0.91
-            }, {
-                name: "Item 6",
-                y: 0.2
-            }]
-        }],
-        credits: {
-            enabled: false
-        },
+        //plotLines: [{
+        //  value: 0,
+        //  width: 1,
+        //  color: '#808080'
+        //}]
+        min: 0
+      },
+      tooltip: {
+        valueSuffix: ''
+      },
+      legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle',
+        borderWidth: 0
+      },
+      plotOptions: {
+        series: {
+          step: 'left'
+        }
+      },
+      // name, data, step
+      series: [seriesData[idx],desiredData[idx]],
+      credits: {
+        enabled: false
+      },
     });
-});
+  });
+}
+function drawPieChart(){
+  //var tabledata;
+  var piedata = [];
+  var max = -1;
+  for (var i = 0; i < tabledata.length; ++i){
+    var latestData = tabledata[i].inv[tabledata[i].inv.length-1];
+    var currentCount = parseInt(latestData.currentCount);
+    var entry = {name:tabledata[i].itemName, y:parseInt(tabledata[i].itemValue)*currentCount};
+    piedata.push(entry);
+    if (max == -1 || piedata[max].y < piedata[i].y)
+      max = i;
+  }
+  if (max >= 0){
+    piedata[max].sliced = true;
+    piedata[max].selected = true;
+  }
+  var pieChartSeriesData = [{
+    name:"Items",
+    colorByPoint: true,
+    data: piedata
+  }];
+  $('#piechartdist').highcharts({
+    chart: {
+      plotBackgroundColor: null,
+      plotBorderWidth: null,
+      plotShadow: false,
+      type: 'pie'
+    },
+    title: {
+      text: 'Inventory cost distribution'
+    },
+    tooltip: {
+      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+    },
+    plotOptions: {
+      pie: {
+        allowPointSelect: true,
+        cursor: 'pointer',
+        dataLabels: {
+          enabled: true,
+          format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+          style: {
+            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+          }
+        }
+      }
+    },
+    series: pieChartSeriesData,
+    credits: {
+        enabled: false
+    },
+  });
+}

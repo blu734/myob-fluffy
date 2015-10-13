@@ -37,6 +37,7 @@ app.use(stylus.middleware({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Database
 var url = 'mongodb://localhost:27017/myob';
 MongoClient.connect(url, function(err, db) {
   assert.equal(null, err);
@@ -44,8 +45,12 @@ MongoClient.connect(url, function(err, db) {
   db.close();
 });
 
+app.locals.moment = require('moment');
+
+// Routes
 app.use('/', routes);
 app.use('/users', users);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

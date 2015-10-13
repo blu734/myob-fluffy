@@ -45,33 +45,38 @@ block content
               th Item Value (NZD)
               th Total Value (NZD)
           tbody.list
-            each row in tabledata
+            each row,idx in tabledata
+              - var latestData = row.inv[row.inv.length-1];
+              - var invdate = new Date(latestData.date).toISOString();
+              - var currentCount = parseInt(latestData.currentCount);
+              - var desiredCount = parseInt(latestData.desiredCount);
+              - var diff = currentCount-desiredCount;
+              - function numberWithCommas(x){ return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",");}
               tr.invrow.info(id=row._id)
                 td.l.name= row.itemName
-                td.dtime.hidden= new Date(row.date).toISOString()
-                td= new Date(row.date).toISOString()
-                td= row.currentCount
-                td= row.desiredCount
-                - var currentCount = parseInt(row.currentCount), desiredCount = parseInt(row.desiredCount);
-                td= currentCount - desiredCount
-                td= currentCount / desiredCount *100-100
-                td= "$"+row.itemValue
-                td= "$"+(parseInt(row.itemValue))*currentCount
+                td.dtime.hidden= invdate
+                td= moment(invdate).format("MMM Do YY")
+                td.number= numberWithCommas(currentCount)
+                td.number= numberWithCommas(desiredCount)
+                td= numberWithCommas((diff > 0) ? "+" + diff : diff)
+                td= (desiredCount > 0) ? (currentCount / desiredCount *100-100).toFixed(1) : 0
+                td.number= "$"+numberWithCommas(row.itemValue)
+                td= "$"+numberWithCommas((parseInt(row.itemValue))*currentCount)
                 td.img
                   img.icon.edit(src="/img/pencil-black.png")
-                  img.icon.update.hidden(src="/img/pencil-white.png")
+                  img.icon.update.hidden(src="/img/save.png")
                 td.img.del
                   img.icon.delete(src="/img/trash.png")
               tr.invrow.graph.hide(class="graph-"+row._id)
-                td.hidden.l.name= row.name
-                td.dtime.hidden= new Date(row.date).toISOString()
+                td.hidden.l.name= row.itemName
+                td.dtime.hidden= invdate
                 td(colspan="10")
-                  div.graph#graph
+                  div.graph(idx=idx)
             tbody.add
               tr
                 td.l.blank(contenteditable="false",placeholder="Item Name")
                 td.blank(contenteditable="false",placeholder="Date Added")
-                td.blank(contenteditable="false",placeholder="Count")
+                td.number.blank(contenteditable="false",placeholder="Count")
                 td.blank(contenteditable="false",placeholder="Desired Num")
                 td.blank
                 td.blank
@@ -79,14 +84,20 @@ block content
                 td.blank
                 td.img
                   img.icon.add(src="/img/add-black.png")
-                  img.icon.save.hidden(src="/img/add-white.png")
+                  img.icon.save.hidden(src="/img/save.png")
       
 
 block scripts
   script(src="/js/custom/list.min.js")
+  script(src="/js/custom/moment.min.js")
   //-script(src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js")
   script(src="/js/custom/jquery-1.8.2.min.js")
   script(src="/js/custom/highcharts/highcharts.js")
   script(src="/js/custom/highcharts/exporting.js")
   script(src="/js/header.js")
   script(src="/js/index.js")
+  script.
+    var tabledata = !{JSON.stringify(tabledata)}
+    drawPieChart();
+    drawGraph();
+

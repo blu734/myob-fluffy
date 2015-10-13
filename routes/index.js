@@ -4,31 +4,32 @@ var db = require('../lib/dbmongo');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  var tabledata = [
-    {
-      seq: 1
-      , name: "First Item"
-      , dateAdded: "2015-07-10"
-      , currentCount: 2
-      , desiredCount: 5
-      , difference: 2-5
-      , differencePercentage: 2/5
-      , itemValue: 30 //$
-      , totalValue: 60
-    },
-    {
-      seq: 2
-      , name: "Second Item"
-      , dateAdded: "2015-07-11"
-      , currentCount: 3
-      , desiredCount: 2
-      , difference: 3-2
-      , differencePercentage: 3/2
-      , itemValue: 102 //$
-      , totalValue: 306
-    },
-  ]
+  //var tabledata = [
+  //  {
+  //    seq: 1
+  //    , name: "First Item"
+  //    , dateAdded: "2015-07-10"
+  //    , currentCount: 2
+  //    , desiredCount: 5
+  //    , difference: 2-5
+  //    , differencePercentage: 2/5
+  //    , itemValue: 30 //$
+  //    , totalValue: 60
+  //  },
+  //  {
+  //    seq: 2
+  //    , name: "Second Item"
+  //    , dateAdded: "2015-07-11"
+  //    , currentCount: 3
+  //    , desiredCount: 2
+  //    , difference: 3-2
+  //    , differencePercentage: 3/2
+  //    , itemValue: 102 //$
+  //    , totalValue: 306
+  //  },
+  //]
   var run = function(data) {
+    console.log(data);
     res.render('index', { title: 'Fluffy', tabledata: data });
   }
   var schema = {
@@ -86,10 +87,10 @@ router.post('/addinventory', function(req, res, next) {
 });
 router.post('/updateinventory', function(req, res, next) {
   var id = req.body.id;
-  var itemName = req.body.name;
-  var currentCount = req.body.count;
-  var desiredCount = req.body.desired;
-  var itemValue = req.body.itemvalue;
+  var itemName = req.body.itemName;
+  var currentCount = req.body.currentCount;
+  var desiredCount = req.body.desiredCount;
+  var itemValue = req.body.itemValue;
   if (!(id && itemName && currentCount && desiredCount && itemValue)){
     res.status(400);
     res.send({err:'Fields were null'});

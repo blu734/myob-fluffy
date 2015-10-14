@@ -59,7 +59,7 @@ block content
                 td.number= numberWithCommas(currentCount)
                 td.number= numberWithCommas(desiredCount)
                 td= numberWithCommas((diff > 0) ? "+" + diff : diff)
-                td= (desiredCount > 0) ? (currentCount / desiredCount *100-100).toFixed(1) : 0
+                td= (desiredCount > 0) ? (currentCount / desiredCount *100-100).toFixed(1)+"%" : "0%"
                 td.number= "$"+numberWithCommas(row.itemValue)
                 td= "$"+numberWithCommas((parseInt(row.itemValue))*currentCount)
                 td.img

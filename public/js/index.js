@@ -36,6 +36,7 @@ function toggleEdit() {
           if (item.classList.contains('number'))
             item.innerText = item.innerText.replace(/\D/g,'');
         }
+        items[0].focus();
 
         edits[j].classList.add('hidden');
         updates[j].classList.remove('hidden');
@@ -91,6 +92,7 @@ function addItem() {
     for (var i = 0; i < itemids.length; ++i) {
       items[itemids[i]].contentEditable=true;
     }
+    items[0].focus();
     add.classList.add('hidden');
     save.classList.remove('hidden');
   }
@@ -288,6 +290,7 @@ function drawGraph() {
     var chart = new Highcharts.Chart({
       chart: {
         renderTo: this
+      , backgroundColor: null
       },
       title: {
         text: 'Inventory levels',
@@ -355,10 +358,10 @@ function drawPieChart(){
   }];
   $('#piechartdist').highcharts({
     chart: {
-      plotBackgroundColor: null,
-      plotBorderWidth: null,
-      plotShadow: false,
-      type: 'pie'
+      plotBackgroundColor: null
+    , plotBorderWidth: null
+    , plotShadow: false
+    , type: 'pie'
     },
     title: {
       text: 'Inventory cost distribution'

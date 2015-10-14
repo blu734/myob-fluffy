@@ -84,6 +84,9 @@ function getDt() {
   var d = new Date();
   return d.toJSON().slice(0,10) + " " + d.toJSON().slice(11,19)
 }
+function numberWithCommas(x){
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",");
+}
 function addOnClickListener(item, func) {
   if (item.addEventListener) {   // For all major browsers, except IE 8 and earlier
     item.addEventListener("click", func);

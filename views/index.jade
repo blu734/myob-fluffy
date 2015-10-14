@@ -52,7 +52,7 @@ block content
               - var desiredCount = parseInt(latestData.desiredCount);
               - var diff = currentCount-desiredCount;
               - function numberWithCommas(x){ return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",");}
-              tr.invrow.info(id=row._id)
+              tr.invrow.info(id=row._id,idx=idx)
                 td.l.name= row.itemName
                 td.dtime.hidden= invdate
                 td= moment(invdate).format("MMM Do YY")

@@ -30,8 +30,8 @@ function toggleEdit() {
         var items = edits[j].parentNode.parentNode.children;
 
         var itemids = [0,3,4,7];
-        for (var i = 0; i < itemids.length; ++i) {
-          var item = items[itemids[i]];
+        for (var l = 0; l < itemids.length; ++l) {
+          var item = items[itemids[l]];
           item.contentEditable=true;
           if (item.classList.contains('number'))
             item.innerText = item.innerText.replace(/\D/g,'');
@@ -49,8 +49,8 @@ function toggleEdit() {
 
             var isEdit = edits[k].parentNode.parentNode.classList.remove('edit');
             var itemids = [0,3,4,7];
-            for (var i = 0; i < itemids.length; ++i) {
-              items[itemids[i]].contentEditable=false;
+            for (var l = 0; l < itemids.length; ++l) {
+              items[itemids[l]].contentEditable=false;
             }
 
             updates[k].classList.add('hidden');
@@ -74,12 +74,38 @@ function saveItemChanges(row){
   , desiredCount: items[4].innerText
   , itemValue: items[7].innerText
   };
-  console.log(row, data);
   ajaxPost('/updateinventory',data,function(responseText){
     console.log(responseText);
+    var idx = parseInt(row.getAttribute('idx'));
+    data.date = moment().format();
+    tabledata[idx].itemName = data.itemName;
+    tabledata[idx].itemValue = parseInt(data.itemValue);
+    tabledata[idx].inv.push({
+      date: data.date
+    , currentCount: parseInt(data.currentCount)
+    , desiredCount: parseInt(data.desiredCount)
+    });
+    calculateRow(row, data);
+    drawPieChart();
+    drawGraph();
   },function(responseText){
     console.log(responseText);
   },true)
+}
+function calculateRow(row,data){
+  var items = row.children;
+  var invdate = data.date;
+  var currentCount = parseInt(data.currentCount);
+  var desiredCount = parseInt(data.desiredCount);
+  var diff = currentCount-desiredCount;
+  items[1].innerText = data.date;
+  items[2].innerText = moment(data.date).format("MMM Do YY");
+  items[3].innerText = numberWithCommas(currentCount)
+  items[4].innerText = numberWithCommas(desiredCount)
+  items[5].innerText = numberWithCommas((diff > 0) ? "+" + diff : diff)
+  items[6].innerText = (desiredCount > 0) ? (currentCount / desiredCount *100-100).toFixed(1)+"%" : "0%"
+  items[7].innerText = "$"+numberWithCommas(data.itemValue)
+  items[8].innerText = "$"+numberWithCommas((parseInt(row.itemValue))*currentCount)
 }
 function addItem() {
   var add = qget('tbody.add img.add');
@@ -125,7 +151,7 @@ function saveAndAddItem(){
 
       var data = {
         id: response.data.id
-      , date: (new Date()).toISOString()
+      , date: moment().format()
       , itemName: item.itemName
       , currentCount: item.currentCount
       , desiredCount: item.desiredCount
@@ -265,7 +291,7 @@ function drawGraph() {
   var desiredData = [];
   for (var i = 0; i < tabledata.length; ++i) {
     var inventory = {name: tabledata[i].itemName, data: []}
-    var desired = {name: 'Desired', data: []}
+    var desired = {name: 'Desired', data: [], dashStyle: 'dot'}
     //if (tabledata[i].inv.length>0) {
     //  inventory.data.push([Date.parse(tabledata[i].inv[0].date), 0]);
     //  desired.data.push([Date.parse(tabledata[i].inv[0].date), 0]);
@@ -279,8 +305,8 @@ function drawGraph() {
     }
     var currentCount = parseInt(tabledata[i].inv[tabledata[i].inv.length-1].currentCount);
     var desiredCount = parseInt(tabledata[i].inv[tabledata[i].inv.length-1].desiredCount);
-    inventory.data.push([(new Date()).getTime(), currentCount]);
-    desired.data.push([(new Date()).getTime(), desiredCount]);
+    inventory.data.push([moment().valueOf(), currentCount]);
+    desired.data.push([moment().valueOf(), desiredCount]);
     seriesData.push(inventory);
     desiredData.push(desired);
   }
@@ -367,7 +393,9 @@ function drawPieChart(){
       text: 'Inventory cost distribution'
     },
     tooltip: {
-      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+      headerFormat: '<b>{series.name}</b><br>',
+      pointFormat: '<em>${point.y:.2f}</em>: {point.percentage:.1f}%'
+      //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b><br>'
     },
     plotOptions: {
       pie: {

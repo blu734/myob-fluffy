@@ -90,6 +90,8 @@ function saveItemChanges(row){
     drawGraph();
   },function(responseText){
     console.log(responseText);
+    showError("Error occured in updating inventory");
+    }, true)
   },true)
 }
 function calculateRow(row,data){
@@ -131,10 +133,6 @@ function saveAndAddItem(){
     var save = qget('tbody.add img.save');
 
     var items = add.parentNode.parentNode.children;
-    var itemids = [0,2,3,6];
-    for (var i = 0; i < itemids.length; ++i) {
-      items[itemids[i]].contentEditable=false;
-    }
     var item = {
       itemName: items[0].innerText
     , currentCount: items[2].innerText
@@ -149,6 +147,11 @@ function saveAndAddItem(){
       var response = JSON.parse(responseText);
       console.log(response.data);
 
+      var itemids = [0,2,3,6];
+      for (var i = 0; i < itemids.length; ++i) {
+        items[itemids[i]].contentEditable=false;
+      }
+
       var data = {
         id: response.data.id
       , date: moment().format()
@@ -156,9 +159,20 @@ function saveAndAddItem(){
       , currentCount: item.currentCount
       , desiredCount: item.desiredCount
       , itemValue: item.itemValue
+      , idx: tabledata.length
       }
 
       insertRow(data);
+      tabledata.push({
+        _id: data.id
+      , itemName: data.itemName
+      , itemValue: data.itemValue
+      , inv: [{
+          date:data.date
+        , currentCount: data.currentCount
+        , desiredCount: data.desiredCount
+        }]
+      });
 
       add.classList.remove('hidden')
       save.classList.add('hidden')
@@ -168,6 +182,7 @@ function saveAndAddItem(){
         console.log(response.err);
       }
       console.log("An error has occured in adding an item");
+      showError("Invalid data to add");
     }, true)
     //
     //add.classList.remove('hidden')
@@ -183,6 +198,7 @@ function insertRow(data){
   var newRow = tbody.insertRow(tbody.rows.length);
   newRow.className = "invrow info";
   newRow.id = data.id;
+  newRow.setAttribute("idx", data.idx);
   var newCell = newRow.insertCell(0);
   newCell.className = 'l name';
   newCell.innerText = data.itemName;
@@ -234,7 +250,7 @@ function insertRow(data){
 
   newCell = newRow.insertCell(2);
   newCell.colSpan = 10;
-  newCell.innerHTML = '<div class="graph" id="graph"></div>';
+  newCell.innerHTML = '<div class="graph" idx="'+data.idx+'"></div>';
 
   // clean add area
   var add = qget('tbody.add img.add');
@@ -251,15 +267,18 @@ function deleteItem() {
         var item = {id:delIcons[j].parentNode.id};
         ajaxPost("/deleteinventory", item, function(responseText){
           var response = JSON.parse(responseText);
-          console.log(response.data);
-          geid(response.data.id).remove();
+          var row = geid(response.data.id);
+          var idx = row.getAttribute('idx');
+          tabledata.splice(idx,1);
+          row.remove();
           qget('.graph-'+response.data.id).remove();
         }, function(responseText){
           if (responseText){
             var response = JSON.parse(responseText);
             console.log(response.err);
           }
-          console.log("An error has occured in adding an item");
+          console.log("An error has occured in deleting an item");
+          showError("Error occured in deleting inventory");
         }, true)
         
         event.stopPropagation();
@@ -275,6 +294,14 @@ function numbersOnly(){
       return event.charCode >= 48 && event.charCode <= 57;
     }
   }
+}
+function showError(msg){
+  var notification = geid('notification');
+  notification.innerText = msg;
+  notification.classList.remove('hide');
+  var timeout = setTimeout(function() {
+    notification.classList.add('hide');
+  }, 3000)
 }
 // s = s.replace(/\D/g,'');
 setupListTable();

@@ -5,6 +5,8 @@ Author: Ben Lu
 
 This is an entry for the MCC MYOB IT Challenge 2015, under team Fluffy.
 
+This has only be tested on the latest Chrome!
+
 TODO
 ----
 
@@ -14,7 +16,7 @@ TODO
 Installation
 ------------
 
-Ensure node is installed, then run `npm install` to install packages
+Ensure node is installed, then run `npm install` to install packages. Install nodemon, and mongodb. and ensure it is running.
 Run the code using `DEBUG=myob-it-2015:* npm start`. 
 That should be about it
 

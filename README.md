@@ -8,15 +8,8 @@ This is an entry for the MCC MYOB IT Challenge 2015, under team Fluffy.
 TODO
 ----
 
-* Pretty DateAdded
-    * DateJS
-* string formatting difference
-* limit decimals on difference %
-* Prevent wrong values being entered on table entry, both front and backend
-* Clean up layout of editing (hovers, cursors etc)
 * Add callbacks for after something has been added, update tabledata and piechart
 * Add arrows to sortable headers and add more sortable headers
-* Dotted desired line?
 
 Installation
 ------------

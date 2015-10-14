@@ -91,7 +91,6 @@ function saveItemChanges(row){
   },function(responseText){
     console.log(responseText);
     showError("Error occured in updating inventory");
-    }, true)
   },true)
 }
 function calculateRow(row,data){
@@ -107,7 +106,7 @@ function calculateRow(row,data){
   items[5].innerText = numberWithCommas((diff > 0) ? "+" + diff : diff)
   items[6].innerText = (desiredCount > 0) ? (currentCount / desiredCount *100-100).toFixed(1)+"%" : "0%"
   items[7].innerText = "$"+numberWithCommas(data.itemValue)
-  items[8].innerText = "$"+numberWithCommas((parseInt(row.itemValue))*currentCount)
+  items[8].innerText = "$"+numberWithCommas((parseInt(data.itemValue))*currentCount)
 }
 function addItem() {
   var add = qget('tbody.add img.add');
@@ -176,6 +175,10 @@ function saveAndAddItem(){
 
       add.classList.remove('hidden')
       save.classList.add('hidden')
+
+      drawPieChart();
+      drawGraph();
+      toggleGraphs();
     }, function(responseText){
       if (responseText){
         var response = JSON.parse(responseText);
@@ -236,6 +239,8 @@ function insertRow(data){
   newCell.className = "img del";
   newCell.innerHTML = "<img class=\"icon delete\" src=\"/img/trash.png\">";
 
+  calculateRow(newRow, data);
+
   // Graph row
   newRow = tbody.insertRow(tbody.rows.length);
   newRow.className = "invrow graph hide graph-"+data.id;
@@ -270,8 +275,12 @@ function deleteItem() {
           var row = geid(response.data.id);
           var idx = row.getAttribute('idx');
           tabledata.splice(idx,1);
-          row.remove();
-          qget('.graph-'+response.data.id).remove();
+
+          animateDelRow(row);
+          setTimeout(function(){
+            row.remove();
+            qget('.graph-'+response.data.id).remove();
+          },600);
         }, function(responseText){
           if (responseText){
             var response = JSON.parse(responseText);
@@ -286,6 +295,18 @@ function deleteItem() {
       }
     }(i)
   }
+}
+function animateDelRow(row){
+  var items = row.getElementsByTagName('td');
+  for (var i = 0; i < items.length; ++i) {
+    items[i].innerHTML = "<div>" + items[i].innerHTML + "</div>";
+    items[i].classList.add('delete');
+  }
+  setTimeout(function(){
+    for (var i = 0; i < items.length; ++i) {
+      items[i].children[0].classList.add('del');
+    }
+  }, 0)
 }
 function numbersOnly(){
   var numbers = qgeta('.number');

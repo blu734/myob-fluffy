@@ -4,32 +4,7 @@ var db = require('../lib/dbmongo');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  //var tabledata = [
-  //  {
-  //    seq: 1
-  //    , name: "First Item"
-  //    , dateAdded: "2015-07-10"
-  //    , currentCount: 2
-  //    , desiredCount: 5
-  //    , difference: 2-5
-  //    , differencePercentage: 2/5
-  //    , itemValue: 30 //$
-  //    , totalValue: 60
-  //  },
-  //  {
-  //    seq: 2
-  //    , name: "Second Item"
-  //    , dateAdded: "2015-07-11"
-  //    , currentCount: 3
-  //    , desiredCount: 2
-  //    , difference: 3-2
-  //    , differencePercentage: 3/2
-  //    , itemValue: 102 //$
-  //    , totalValue: 306
-  //  },
-  //]
   var run = function(data) {
-    console.log(data);
     res.render('index', { title: 'Fluffy', tabledata: data });
   }
   var schema = {
@@ -44,22 +19,22 @@ router.get('/', function(req, res, next) {
   
   db.getInventory(run,schema);
 });
-//router.get('/getinventory', function(req, res, next) {
-//  var run = function(data) {
-//    res.send({title:"Get Inventory", data:data});
-//  }
-//  var schema = {
-//    itemName: {$exists:true}
-//  , inv: {$exists:true,$elemMatch: {
-//      date: {$exists:true}
-//    , currentCount: {$exists:true}
-//    , desiredCount: {$exists:true}
-//    }}
-//  , itemValue: {$exists:true}
-//  };
-//  
-//  db.getInventory(run,schema);
-//});
+router.get('/getinventory', function(req, res, next) {
+  var run = function(data) {
+    res.send({title:"Get Inventory", data:data});
+  }
+  var schema = {
+    itemName: {$exists:true}
+  , inv: {$exists:true,$elemMatch: {
+      date: {$exists:true}
+    , currentCount: {$exists:true}
+    , desiredCount: {$exists:true}
+    }}
+  , itemValue: {$exists:true}
+  };
+  
+  db.getInventory(run,schema);
+});
 router.post('/addinventory', function(req, res, next) {
   var itemName = req.body.itemName;
   var currentCount = req.body.currentCount;

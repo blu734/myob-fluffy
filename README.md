@@ -20,6 +20,21 @@ Ensure node is installed, then run `npm install` to install packages. Install no
 Run the code using `DEBUG=myob-it-2015:* npm start`. 
 That should be about it
 
+Running
+-------
+
+Start MongoDB
+
+```
+mongod --dbpath db
+```
+
+Start node
+
+```
+npm start
+```
+
 AWS
 ---
 
